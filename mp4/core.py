@@ -2,6 +2,7 @@
 core.py contains class definitions used by both iso.py and non_iso.py, namely classes (Mp4Box and Mp4FullBox)
 that are used as parents for all the real, instantiated boxes. Also contains a header class definition.
 """
+import os
 from mp4.util import *
 
 
@@ -66,11 +67,20 @@ class Header:
         """
         The file pointer, fp will be located at the start of the box on entry and at the end of the header on exit
         """
+        self.trunc = False
         start_of_box = fp.tell()
+        fp.seek(0, os.SEEK_END)
+        max_len_of_box = fp.tell() - start_of_box
+        fp.seek(start_of_box)
         self._size = read_u32(fp)
         self.type = fp.read(4).decode('utf-8', errors="ignore")
         if self._size == 1:
             self._largesize = read_u64(fp)
+            if max_len_of_box < self._largesize:
+                self.trunc = True
+        else:
+            if max_len_of_box < self._size:
+                self.trunc = True
         if self.type == 'uuid':
             self.uuid = fp.read(16)
         self.header_size = fp.tell() - start_of_box
@@ -87,7 +97,7 @@ class Header:
 
     def get_header(self):
         """ returns all header properties as a dictionary """
-        ret_header = {"size": self._size, "type": self.type}
+        ret_header = {"size": self._size, "type": self.type, 'IsTruncated':self.trunc}
         if self._size == 1:
             ret_header['largesize'] = self._largesize
         if self.type == 'uuid':

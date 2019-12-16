@@ -54,11 +54,11 @@ class MyApp(Tk):
     def __init__(self):
         super().__init__()
         # uncomment desired logging level
-        # logging.basicConfig(format = "%(asctime)s %(message)s", level=logging.DEBUG)
-        logging.basicConfig(format = "%(asctime)s %(message)s", level=logging.WARNING)
+        logging.basicConfig(format = "%(asctime)s %(message)s", level=logging.DEBUG)
+        # logging.basicConfig(format = "%(asctime)s %(message)s", level=logging.WARNING)
 
         self.mp4file = None
-        self.dialog_dir = os.path.expanduser("~")
+        self.dialog_dir = os.getcwd()#os.path.expanduser("~")
 
         # build ui
         self.title("MP4 Analyser")
@@ -129,6 +129,7 @@ class MyApp(Tk):
         # text widget display details of selected box
         self.t = ReadOnlyText(self.f2, state='normal', width=120, height=24, wrap='none')
         self.t.grid(column=0, row=0, sticky=(N, W, E, S))
+        self.t.tag_configure('error', font=('Arial', 12, 'bold', 'italic'), foreground='red')
 
         # Sub-classed auto hiding scroll bar
         self.scroll2 = AutoScrollbar(self.f2, orient=VERTICAL, command=self.t.yview)
@@ -235,7 +236,13 @@ class MyApp(Tk):
         self.t.delete(1.0, END)
         my_string = "Box is located at position " + "{0:#d}".format(box_selected.start_of_box) + \
                     " from start of from file\n\n"
-        my_string += "Has header:\n" + json.dumps(box_selected.header.get_header()) + "\n\n"
+        hdr_str = json.dumps(box_selected.header.get_header())
+        if -1 == hdr_str.find('"IsTruncated": true'):
+            my_string += "Has header:\n" + hdr_str + "\n\n"
+        else:
+            self.t.insert(END, my_string + "Has header:\n")
+            self.t.insert(END, hdr_str + "\n\n", 'error')
+            my_string = ''
         if len(box_selected.box_info) > 0:
             # insertion order is preserved in modern Python
             my_string += "Has values:\n" + json.dumps(box_selected.box_info, indent=4) + "\n\n"
@@ -245,7 +252,7 @@ class MyApp(Tk):
 
     def populate_hex_text_widget(self, box_selected):
         bytes_per_line = 32  # Num bytes per line
-        trunc_size = 1000000  # Arbitrary max number of bytes to display in hex view to prevent tk text widget barfing.
+        trunc_size = 8192  # Arbitrary max number of bytes to display in hex view to prevent tk text widget barfing.
         self.thex.delete(1.0, END)
         my_byte_string = box_selected.get_bytes()
         trunc = False
@@ -253,6 +260,7 @@ class MyApp(Tk):
             my_byte_string = my_byte_string[:trunc_size]
             trunc = True
         hex_string = ''
+        logging.debug("Hex text beginning")
         for i in range(0, len(my_byte_string), bytes_per_line):
             byte_line = my_byte_string[i:i + bytes_per_line]
             # which is better 256 or 65536? Maybe 65536 for east asian subs

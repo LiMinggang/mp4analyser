@@ -6,8 +6,10 @@ Additionally a class to represent the MP4 file that contains the MP4 boxes has b
 A box_factory function has also been defined, primarily to minimise coupling between modules.
 
 """
+import sys
 import binascii
 import datetime
+import traceback
 import mp4.non_iso
 from mp4.core import *
 from mp4.util import *
