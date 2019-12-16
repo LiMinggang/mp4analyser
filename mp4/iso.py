@@ -14,6 +14,18 @@ import mp4.non_iso
 from mp4.core import *
 from mp4.util import *
 
+# Supported box
+# 'ftyp', 'pdin', 'moov', 'mvhd', 'meta', 'trak', 'tkhd', 'tref', 'trgr', 'edts', 'elst', 'mdia',
+# 'mdhd', 'hdlr', 'elng', 'minf', 'vmhd', 'smhd', 'hmhd', 'nmhd', 'dinf', 'dref', 'url ', 'urn ',
+# 'stbl', 'stsd', 'stts', 'ctts', 'cslg', 'stsc', 'stsz', 'stz2', 'stco', 'co64', 'stss', 'stsh',
+# 'padb', 'stdp', 'sdtp', 'sbgp', 'sgpd', 'subs', 'saiz', 'saio', 'udta', 'mvex', 'mehd', 'trex',
+# 'leva', 'moof', 'mfhd', 'traf', 'tfhd', 'trun', 'tfdt', 'mfra', 'tfra', 'mfro', 'mdat', 'free',
+# 'skip', 'cprt', 'tsel', 'strk', 'stri', 'strd', 'iloc', 'ipro', 'rinf', 'sinf', 'frma', 'schm',
+# 'xml ', 'pitm', 'iref', 'meco', 'mere', 'styp', 'sidx', 'ssix', 'prft', 'avc1', 'hvc1', 'avcC',
+# 'hvcC', 'btrt', 'pasp', 'mp4a', 'ac-3', 'ec-3', 'esds', 'dac3', 'dec3', 'ilst', 'data', 'pssh',
+# 'senc'
+# Not supported
+# 'sthd', 'iinf', 'bxml', 'fiin', 'paen', 'fire', 'fpar', 'fecr', 'segr', 'gitn', 'idat'
 
 def box_factory(fp, header, parent):
     """
