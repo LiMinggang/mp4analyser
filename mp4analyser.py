@@ -259,8 +259,9 @@ class MyApp(Tk):
         if len(my_byte_string) > trunc_size:
             my_byte_string = my_byte_string[:trunc_size]
             trunc = True
-        hex_string = ''
+        hex_string = ' Offset  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10 11 12 13 14 15 16 17 18 19 1A 1B 1C 1D 1E 1F\n'
         logging.debug("Hex text beginning")
+        offset = 0
         for i in range(0, len(my_byte_string), bytes_per_line):
             byte_line = my_byte_string[i:i + bytes_per_line]
             # which is better 256 or 65536? Maybe 65536 for east asian subs
@@ -269,7 +270,8 @@ class MyApp(Tk):
             hex_line = binascii.b2a_hex(byte_line).decode('utf-8')
             pretty_hex_line = " ".join([hex_line[j:j + 2] for j in range(0, len(hex_line), 2)])
             pretty_hex_line = pretty_hex_line.ljust(3 * bytes_per_line)
-            hex_string += pretty_hex_line + '\t' + char_line + '\n'
+            hex_string += "{:08X} ".format(offset) + pretty_hex_line + '\t' + char_line + '\n'
+            offset += bytes_per_line
         logging.debug("Hex text processed")
         if trunc:
             self.thex.insert(END, 'Hex view, showing first 1MB: \n' + hex_string)
