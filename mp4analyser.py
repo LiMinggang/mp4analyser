@@ -14,6 +14,7 @@ import json
 import binascii
 from tkinter import *
 from tkinter import filedialog
+from tkinter import simpledialog
 from tkinter import ttk
 # mp4 is the package that actually parses the mp4 file
 import mp4.iso
@@ -59,6 +60,7 @@ class MyApp(Tk):
 
         self.mp4file = None
         self.dialog_dir = os.getcwd()#os.path.expanduser("~")
+        self.find_menu = "Find a Box..."
 
         # build ui
         self.title("MP4 Analyser")
@@ -72,6 +74,7 @@ class MyApp(Tk):
 
         self.filemenu = Menu(self.menubar)
         self.filemenu.add_command(label="Open...", command=self.open_file)
+        self.filemenu.add_command(label=self.find_menu, command=self.find_box, state=DISABLED)
         self.filemenu.add_separator()
         self.filemenu.add_command(label="Exit", command=self.quit)
         self.menubar.add_cascade(label="File", menu=self.filemenu)
@@ -154,7 +157,7 @@ class MyApp(Tk):
         """ Callback on selecting 'Open' from menu """
         filename = filedialog.askopenfilename(filetypes=(("MP4 Files", ".mp4 .m4a .m4p .m4b .m4r .m4v"),
                                                          ("All Files", "*.*")), initialdir=self.dialog_dir)
-        if filename == ():
+        if not filename:
             return
         logging.debug("Loading file " + filename)
         self.statustext.set("Loading...")
@@ -167,6 +170,7 @@ class MyApp(Tk):
         self.tree.delete(*self.tree.get_children())
         self.t.delete(1.0, END)
         self.thex.delete(1.0, END)
+        self.filemenu.entryconfigure(self.find_menu, state=DISABLED)
         # Now fill tree with new contents
         for l0, this_box in enumerate(self.mp4file.child_boxes):
             self.tree.insert('', 'end', str(l0), text=str(l0) + " " + this_box.type, open=TRUE)
@@ -196,6 +200,23 @@ class MyApp(Tk):
                                                          open=TRUE)
         logging.debug("Finished populating " + filename)
         self.statustext.set("")
+        if self.tree.get_children(""):
+            self.filemenu.entryconfigure(self.find_menu, state=NORMAL)
+
+    def find_box(self):
+        box_name = simpledialog.askstring(title="Find a Box",
+                                  prompt="Box Name(case sensitive):")
+        if box_name:
+            current = self.tree.focus()
+            if not current:
+                current = ""
+            def get_all_children(tree, item=""):
+                children = tree.get_children()
+                for child in children:
+                    children += get_all_children(tree, child)
+                return children
+            allbox = get_all_children(self.tree)
+            print( allbox, current )
 
     def select_box(self, a):
         """ Callback on selecting an Mp4 box in treeview """
