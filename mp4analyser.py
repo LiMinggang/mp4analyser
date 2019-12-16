@@ -12,9 +12,11 @@ import os
 import logging
 import json
 import binascii
+import traceback
 from tkinter import *
 from tkinter import filedialog
 from tkinter import simpledialog
+from tkinter import messagebox
 from tkinter import ttk
 # mp4 is the package that actually parses the mp4 file
 import mp4.iso
@@ -60,7 +62,10 @@ class MyApp(Tk):
 
         self.mp4file = None
         self.dialog_dir = os.getcwd()#os.path.expanduser("~")
-        self.find_menu = "Find a Box..."
+        self.search_menu = "Search"
+        self.find_menu = "Find Box..."
+        self.find_next_menu = "Find Next Box"
+        self.find_prev_menu = "Finx Prev Box"
 
         # build ui
         self.title("MP4 Analyser")
@@ -73,11 +78,20 @@ class MyApp(Tk):
         self.menubar = Menu(self)
 
         self.filemenu = Menu(self.menubar)
-        self.filemenu.add_command(label="Open...", command=self.open_file)
-        self.filemenu.add_command(label=self.find_menu, command=self.find_box, state=DISABLED)
+        self.filemenu.add_command(label="Open...", accelerator="Ctrl+O", command=self.open_file)
+        self.bind_all("<Control-o>", self.open_file)
         self.filemenu.add_separator()
-        self.filemenu.add_command(label="Exit", command=self.quit)
+        self.filemenu.add_command(label="Exit", accelerator="Alt+X", command=self.quit)
+        self.bind_all("<Alt-x>", self.find_box)
         self.menubar.add_cascade(label="File", menu=self.filemenu)
+        self.findmenu = Menu(self.menubar)
+        self.findmenu.add_command(label="Find Box...", accelerator="Ctrl+F", command=self.find_box, state=DISABLED)
+        self.bind_all("<Control-f>", self.find_box)
+        self.findmenu.add_command(label=self.find_next_menu, accelerator="F3", command=self.find_next_box, state=DISABLED)
+        self.bind_all("<F3>", self.find_next_box)
+        self.findmenu.add_command(label=self.find_prev_menu, accelerator="F4", command=self.find_prev_box, state=DISABLED)
+        self.bind_all("<F4>", self.find_prev_box)
+        self.menubar.add_cascade(label="Search", menu=self.findmenu)
         self.config(menu=self.menubar)
 
         # status bar
@@ -122,6 +136,7 @@ class MyApp(Tk):
         self.tree = ttk.Treeview(self.f1, show="tree")
         self.tree.grid(column=0, row=0, sticky=(N, W, E, S))
         self.tree.column("#0", width=300)
+        self.treenodes = []
 
         # Sub-classed auto hiding scroll bar
         self.scroll1 = AutoScrollbar(self.f1, orient=VERTICAL, command=self.tree.yview)
@@ -153,7 +168,7 @@ class MyApp(Tk):
         self.scroll4.grid(column=0, row=1, sticky=(W, E))
         self.thex['xscrollcommand'] = self.scroll4.set
 
-    def open_file(self):
+    def open_file(self, event=None):
         """ Callback on selecting 'Open' from menu """
         filename = filedialog.askopenfilename(filetypes=(("MP4 Files", ".mp4 .m4a .m4p .m4b .m4r .m4v"),
                                                          ("All Files", "*.*")), initialdir=self.dialog_dir)
@@ -168,55 +183,126 @@ class MyApp(Tk):
         self.title("MP4 Analyser" + " - " + filename_base)
         # Clear tree and text widgets if not empty
         self.tree.delete(*self.tree.get_children())
+        self.treenodes.clear()
         self.t.delete(1.0, END)
         self.thex.delete(1.0, END)
-        self.filemenu.entryconfigure(self.find_menu, state=DISABLED)
+
+        self.findmenu.entryconfigure(self.find_menu, state=DISABLED)
+        self.findmenu.entryconfigure(self.find_next_menu, state=DISABLED)
+        self.findmenu.entryconfigure(self.find_prev_menu, state=DISABLED)
         # Now fill tree with new contents
         for l0, this_box in enumerate(self.mp4file.child_boxes):
-            self.tree.insert('', 'end', str(l0), text=str(l0) + " " + this_box.type, open=TRUE)
+            self.treenodes.append(self.tree.insert('', 'end', str(l0), text=str(l0) + " " + this_box.type, open=TRUE))
             for l1, this_box in enumerate(this_box.child_boxes):
                 l1_iid = "{0}.{1}".format(l0, l1)
-                self.tree.insert(str(l0), 'end', l1_iid, text=l1_iid + " " + this_box.type, open=TRUE)
+                self.treenodes.append(self.tree.insert(str(l0), 'end', l1_iid, text=l1_iid + " " + this_box.type, open=TRUE))
                 for l2, this_box in enumerate(this_box.child_boxes):
                     l2_iid = "{0}.{1}.{2}".format(l0, l1, l2)
-                    self.tree.insert(l1_iid, 'end', l2_iid, text=l2_iid + " " + this_box.type, open=TRUE)
+                    self.treenodes.append(self.tree.insert(l1_iid, 'end', l2_iid, text=l2_iid + " " + this_box.type, open=TRUE))
                     for l3, this_box in enumerate(this_box.child_boxes):
                         l3_iid = "{0}.{1}.{2}.{3}".format(l0, l1, l2, l3)
-                        self.tree.insert(l2_iid, 'end', l3_iid, text=l3_iid + " " + this_box.type, open=TRUE)
+                        self.treenodes.append(self.tree.insert(l2_iid, 'end', l3_iid, text=l3_iid + " " + this_box.type, open=TRUE))
                         for l4, this_box in enumerate(this_box.child_boxes):
                             l4_iid = "{0}.{1}.{2}.{3}.{4}".format(l0, l1, l2, l3, l4)
-                            self.tree.insert(l3_iid, 'end', l4_iid, text=l4_iid + " " + this_box.type, open=TRUE)
+                            self.treenodes.append(self.tree.insert(l3_iid, 'end', l4_iid, text=l4_iid + " " + this_box.type, open=TRUE))
                             for l5, this_box in enumerate(this_box.child_boxes):
                                 l5_iid = "{0}.{1}.{2}.{3}.{4}.{5}".format(l0, l1, l2, l3, l4, l5)
-                                self.tree.insert(l4_iid, 'end', l5_iid, text=l5_iid + " " + this_box.type, open=TRUE)
+                                self.treenodes.append(self.tree.insert(l4_iid, 'end', l5_iid, text=l5_iid + " " + this_box.type, open=TRUE))
                                 for l6, this_box in enumerate(this_box.child_boxes):
                                     l6_iid = "{0}.{1}.{2}.{3}.{4}.{5}.{6}".format(l0, l1, l2, l3, l4, l5, l6)
-                                    self.tree.insert(l5_iid, 'end', l6_iid, text=l6_iid + " " + this_box.type,
-                                                     open=TRUE)
+                                    self.treenodes.append(self.tree.insert(l5_iid, 'end', l6_iid, text=l6_iid + " " + this_box.type,
+                                                     open=TRUE))
                                     for l7, this_box in enumerate(this_box.child_boxes):
                                         l7_iid = "{0}.{1}.{2}.{3}.{4}.{5}.{6}.{7}".format(l0, l1, l2, l3, l4, l5, l6,
                                                                                           l7)
-                                        self.tree.insert(l6_iid, 'end', l7_iid, text=l7_iid + " " + this_box.type,
-                                                         open=TRUE)
+                                        self.treenodes.append(self.tree.insert(l6_iid, 'end', l7_iid, text=l7_iid + " " + this_box.type,
+                                                         open=TRUE))
         logging.debug("Finished populating " + filename)
         self.statustext.set("")
-        if self.tree.get_children(""):
-            self.filemenu.entryconfigure(self.find_menu, state=NORMAL)
+        if self.treenodes:
+            self.findmenu.entryconfigure(self.find_menu, state=NORMAL)
+            self.findmenu.entryconfigure(self.find_next_menu, state=NORMAL)
+            self.findmenu.entryconfigure(self.find_prev_menu, state=NORMAL)
 
-    def find_box(self):
-        box_name = simpledialog.askstring(title="Find a Box",
+
+    def find_box(self, event=None):
+        box_name = simpledialog.askstring(title="Find Box",
                                   prompt="Box Name(case sensitive):")
         if box_name:
+            self.find_box_name = box_name
+        else:
+            return
+        if self.treenodes:
             current = self.tree.focus()
             if not current:
-                current = ""
-            def get_all_children(tree, item=""):
-                children = tree.get_children()
-                for child in children:
-                    children += get_all_children(tree, child)
-                return children
-            allbox = get_all_children(self.tree)
-            print( allbox, current )
+                current = self.treenodes[0]
+
+            search_now = True
+            while search_now:
+                start = self.treenodes.index(current)
+                for boxid in self.treenodes[start:]:
+                    node = self.tree.item(boxid)
+                    if node['text'].find(self.find_box_name) != -1:
+                        self.tree.focus(boxid)
+                        self.tree.selection_set(boxid)
+                        self.select_box(None)
+                        return
+
+                search_now = messagebox.askokcancel("Search Next","Can't find box named '" + self.find_box_name + "' specified\n Search from top?")
+                if search_now:
+                    current = self.treenodes[0]
+
+    def find_next_box(self, event=None):
+        if not self.find_box_name:
+            return
+
+        if self.find_box_name and self.treenodes:
+            treenodes = self.treenodes
+            current = self.tree.focus()
+            if not current:
+                current = treenodes[0]
+
+            search_now = True
+            while search_now:
+                start = treenodes.index(current) + 1
+                if start < len(treenodes) - 1:
+                    for boxid in treenodes[start:]:
+                        node = self.tree.item(boxid)
+                        if node['text'].find(self.find_box_name) != -1:
+                            self.tree.focus(boxid)
+                            self.tree.selection_set(boxid)
+                            self.select_box(None)
+                            return
+
+                search_now = messagebox.askokcancel("Search Next","Can't find box named '" + self.find_box_name + "' specified\n Search from top?")
+                if search_now:
+                    current = self.treenodes[0]
+
+    def find_prev_box(self, event=None):
+        if not self.find_box_name:
+            return
+
+        if self.find_box_name and self.treenodes:
+            treenodes = self.treenodes[::-1]
+            current = self.tree.focus()
+            if not current:
+                current = treenodes[0]
+
+            search_now = True
+            while search_now:
+                start = treenodes.index(current) + 1
+                if start < len(treenodes) - 1:
+                    for boxid in treenodes[start:]:
+                        node = self.tree.item(boxid)
+                        if node['text'].find(self.find_box_name) != -1:
+                            self.tree.focus(boxid)
+                            self.tree.selection_set(boxid)
+                            self.select_box(None)
+                            return
+
+                search_now = messagebox.askokcancel("Search Prev","Can't find box named '" + self.find_box_name + "' specified\n Search from bottom?")
+                if search_now:
+                    current = treenodes[0]
 
     def select_box(self, a):
         """ Callback on selecting an Mp4 box in treeview """
@@ -224,7 +310,12 @@ class MyApp(Tk):
         self.statustext.set("Loading...")
         self.update_idletasks()
         # self.tree.focus() returns id in the form  n.n.n as text
-        l = [int(i) for i in self.tree.focus().split('.')]
+        l = []
+        try:
+            l = [int(i) for i in self.tree.focus().split('.')]
+        except:
+            print(self.tree.focus().split('.'))
+            traceback.print_exc(file=sys.stdout)
         box_selected = None
         if len(l) == 1:
             box_selected = self.mp4file.child_boxes[l[0]]
