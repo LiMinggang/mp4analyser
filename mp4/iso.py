@@ -19,195 +19,15 @@ def box_factory(fp, header, parent):
     an instance of that class.
     """
     the_box = None
-    if header.type == 'ftyp':
-        the_box = FtypBox(fp, header, parent)
-    elif header.type == 'pdin':
-        the_box = PdinBox(fp, header, parent)
-    elif header.type == 'moov':
-        the_box = MoovBox(fp, header, parent)
-    elif header.type == 'mvhd':
-        the_box = MvhdBox(fp, header, parent)
-    elif header.type == 'meta':
-        the_box = MetaBox(fp, header, parent)
-    elif header.type == 'trak':
-        the_box = TrakBox(fp, header, parent)
-    elif header.type == 'tkhd':
-        the_box = TkhdBox(fp, header, parent)
-    elif header.type == 'tref':
-        the_box = TrefBox(fp, header, parent)
-    elif header.type == 'trgr':
-        the_box = TrgrBox(fp, header, parent)
-    elif header.type == 'edts':
-        the_box = EdtsBox(fp, header, parent)
-    elif header.type == 'elst':
-        the_box = ElstBox(fp, header, parent)
-    elif header.type == 'mdia':
-        the_box = MdiaBox(fp, header, parent)
-    elif header.type == 'mdhd':
-        the_box = MdhdBox(fp, header, parent)
-    elif header.type == 'hdlr':
-        the_box = HdlrBox(fp, header, parent)
-    elif header.type == 'elng':
-        the_box = ElngBox(fp, header, parent)
-    elif header.type == 'minf':
-        the_box = MinfBox(fp, header, parent)
-    elif header.type == 'vmhd':
-        the_box = VmhdBox(fp, header, parent)
-    elif header.type == 'smhd':
-        the_box = SmhdBox(fp, header, parent)
-    elif header.type == 'hmhd':
-        the_box = HmhdBox(fp, header, parent)
-#    elif header.type == 'sthd':
-#        the_box = SthdBox(fp, header, parent)
-    elif header.type == 'nmhd':
-        the_box = NmhdBox(fp, header, parent)
-    elif header.type == 'dinf':
-        the_box = DinfBox(fp, header, parent)
-    elif header.type == 'dref':
-        the_box = DrefBox(fp, header, parent)
-    elif header.type == 'url ':
-        the_box = Url_Box(fp, header, parent)
-    elif header.type == 'urn ':
-        the_box = Urn_Box(fp, header, parent)
-    elif header.type == 'stbl':
-        the_box = StblBox(fp, header, parent)
-    elif header.type == 'stsd':
-        the_box = StsdBox(fp, header, parent)
-    elif header.type == 'stts':
-        the_box = SttsBox(fp, header, parent)
-    elif header.type == 'ctts':
-        the_box = CttsBox(fp, header, parent)
-    elif header.type == 'cslg':
-        the_box = CslgBox(fp, header, parent)
-    elif header.type == 'stsc':
-        the_box = StscBox(fp, header, parent)
-    elif header.type == 'stsz':
-        the_box = StszBox(fp, header, parent)
-    elif header.type == 'stz2':
-        the_box = Stz2Box(fp, header, parent)
-    elif header.type == 'stco':
-        the_box = StcoBox(fp, header, parent)
-    elif header.type == 'co64':
-        the_box = Co64Box(fp, header, parent)
-    elif header.type == 'stss':
-        the_box = StssBox(fp, header, parent)
-    elif header.type == 'stsh':
-        the_box = StshBox(fp, header, parent)
-    elif header.type == 'padb':
-        the_box = PadbBox(fp, header, parent)
-    elif header.type == 'stdp':
-        the_box = StdpBox(fp, header, parent)
-    elif header.type == 'sdtp':
-        the_box = SdtpBox(fp, header, parent)
-    elif header.type == 'sbgp':
-        the_box = SbgpBox(fp, header, parent)
-    elif header.type == 'sgpd':
-        the_box = SgpdBox(fp, header, parent)
-    elif header.type == 'subs':
-        the_box = SubsBox(fp, header, parent)
-    elif header.type == 'saiz':
-        the_box = SaizBox(fp, header, parent)
-    elif header.type == 'saio':
-        the_box = SaioBox(fp, header, parent)
-    elif header.type == 'udta':
-        the_box = UdtaBox(fp, header, parent)
-    elif header.type == 'mvex':
-        the_box = MvexBox(fp, header, parent)
-    elif header.type == 'mehd':
-        the_box = MehdBox(fp, header, parent)
-    elif header.type == 'trex':
-        the_box = TrexBox(fp, header, parent)
-    elif header.type == 'leva':
-        the_box = LevaBox(fp, header, parent)
-    elif header.type == 'moof':
-        the_box = MoofBox(fp, header, parent)
-    elif header.type == 'mfhd':
-        the_box = MfhdBox(fp, header, parent)
-    elif header.type == 'traf':
-        the_box = TrafBox(fp, header, parent)
-    elif header.type == 'tfhd':
-        the_box = TfhdBox(fp, header, parent)
-    elif header.type == 'trun':
-        the_box = TrunBox(fp, header, parent)
-    elif header.type == 'tfdt':
-        the_box = TfdtBox(fp, header, parent)
-    elif header.type == 'mfra':
-        the_box = MfraBox(fp, header, parent)
-    elif header.type == 'tfra':
-        the_box = TfraBox(fp, header, parent)
-    elif header.type == 'mfro':
-        the_box = MfroBox(fp, header, parent)
-    elif header.type == 'mdat':
-        the_box = MdatBox(fp, header, parent)
-    elif header.type == 'free':
-        the_box = FreeBox(fp, header, parent)
-    elif header.type == 'skip':
-        the_box = SkipBox(fp, header, parent)
-    elif header.type == 'cprt':
-        the_box = CprtBox(fp, header, parent)
-    elif header.type == 'tsel':
-        the_box = TselBox(fp, header, parent)
-    elif header.type == 'strk':
-        the_box = StrkBox(fp, header, parent)
-    elif header.type == 'stri':
-        the_box = StriBox(fp, header, parent)
-    elif header.type == 'strd':
-       the_box = StrdBox(fp, header, parent)
-    elif header.type == 'iloc':
-        the_box = IlocBox(fp, header, parent)
-    elif header.type == 'ipro':
-        the_box = IproBox(fp, header, parent)
-    elif header.type == 'rinf':
-        the_box = RinfBox(fp, header, parent)
-    elif header.type == 'sinf':
-        the_box = SinfBox(fp, header, parent)
-    elif header.type == 'frma':
-        the_box = FrmaBox(fp, header, parent)
-    elif header.type == 'schm':
-       the_box = SchmBox(fp, header, parent)
-#   This looks tedious to code up, won't bother unless I find it is currently extent
-#    elif header.type == 'iinf':
-#        the_box = IinfBox(fp, header, parent)
-    elif header.type == 'xml ':
-        the_box = Xml_Box(fp, header, parent)
-#   Not sure anything useful can be displayed
-#    elif header.type == 'bxml':
-#        the_box = BxmlBox(fp, header, parent)
-    elif header.type == 'pitm':
-        the_box = PitmBox(fp, header, parent)
-#    elif header.type == 'fiin':
-#       the_box = FiinBox(fp, header, parent)
-#    elif header.type == 'paen':
-#        the_box = PaenBox(fp, header, parent)
-#    elif header.type == 'fire':
-#        the_box = FireBox(fp, header, parent)
-#    elif header.type == 'fpar':
-#        the_box = FparBox(fp, header, parent)
-#    elif header.type == 'fecr':
-#        the_box = FecrBox(fp, header, parent)
-#    elif header.type == 'segr':
-#       the_box = SegrBox(fp, header, parent)
-#    elif header.type == 'gitn':
-#        the_box = GitnBox(fp, header, parent)
-#    elif header.type == 'idat':
-#        the_box = IdatBox(fp, header, parent)
-    elif header.type == 'iref':
-        the_box = IrefBox(fp, header, parent)
-    elif header.type == 'meco':
-        the_box = MecoBox(fp, header, parent)
-    elif header.type == 'mere':
-        the_box = MereBox(fp, header, parent)
-    elif header.type == 'styp':
-        the_box = StypBox(fp, header, parent)
-    elif header.type == 'sidx':
-        the_box = SidxBox(fp, header, parent)
-    elif header.type == 'ssix':
-        the_box = SsixBox(fp, header, parent)
-    elif header.type == 'prft':
-        the_box = PrftBox(fp, header, parent)
+    box_type = header.type
+    _box_class = globals().get(box_type.capitalize()+'Box') # globals() Return a dictionary representing the current global symbol table
+    if _box_class:
+        the_box = _box_class(fp, header, parent)
+        return the_box
     else:
         return mp4.non_iso.box_factory_non_iso(fp, header, parent)
-    return the_box
+
+
 # Box classes
 
 
@@ -220,15 +40,20 @@ class Mp4File:
         with open(filename, 'rb') as f:
             end_of_file = False
             while not end_of_file:
-                current_header = Header(f)
-                current_box = box_factory(f, current_header, self)
-                self.child_boxes.append(current_box)
-                if current_box.size == 0:
+                try:
+                    current_header = Header(f)
+                    current_box = box_factory(f, current_header, self)
+                    self.child_boxes.append(current_box)
+                    if current_box.size == 0:
+                        end_of_file = True
+                    if len(f.read(4)) != 4:
+                        end_of_file = True
+                    else:
+                        f.seek(-4, 1)
+                except:
+                    print('Error decoding stream at {}'.format(f.tell()))
+                    traceback.print_exc(file=sys.stdout)
                     end_of_file = True
-                if len(f.read(4)) != 4:
-                    end_of_file = True
-                else:
-                    f.seek(-4, 1)
         f.close()
 
 
