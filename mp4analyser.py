@@ -224,6 +224,26 @@ class MyApp(Tk):
             self.findmenu.entryconfigure(self.find_next_menu, state=NORMAL)
             self.findmenu.entryconfigure(self.find_prev_menu, state=NORMAL)
 
+    def find(self, box_name, nodes, title="Find", msg=""):
+        current = self.tree.focus()
+        if not current:
+            current = nodes[0]
+
+        search_now = True
+        while search_now:
+            start = nodes.index(current) + 1
+            if start < len(nodes) - 1:
+                for boxid in nodes[start:]:
+                    node = self.tree.item(boxid)
+                    if node['text'].find(box_name) != -1:
+                        self.tree.focus(boxid)
+                        self.tree.selection_set(boxid)
+                        self.select_box(None)
+                        return
+
+            search_now = messagebox.askokcancel(title, msg)
+            if search_now:
+                current = nodes[0]
 
     def find_box(self, event=None):
         box_name = simpledialog.askstring(title="Find Box",
@@ -233,50 +253,14 @@ class MyApp(Tk):
         else:
             return
         if self.treenodes:
-            current = self.tree.focus()
-            if not current:
-                current = self.treenodes[0]
-
-            search_now = True
-            while search_now:
-                start = self.treenodes.index(current)
-                for boxid in self.treenodes[start:]:
-                    node = self.tree.item(boxid)
-                    if node['text'].find(self.find_box_name) != -1:
-                        self.tree.focus(boxid)
-                        self.tree.selection_set(boxid)
-                        self.select_box(None)
-                        return
-
-                search_now = messagebox.askokcancel("Search Next","Can't find box named '" + self.find_box_name + "' specified\n Search from top?")
-                if search_now:
-                    current = self.treenodes[0]
+            self.find(self.find_box_name, self.treenodes, msg="Can't find box named '" + self.find_box_name + "'\n Search from top?")
 
     def find_next_box(self, event=None):
         if not self.find_box_name:
             return
 
         if self.find_box_name and self.treenodes:
-            treenodes = self.treenodes
-            current = self.tree.focus()
-            if not current:
-                current = treenodes[0]
-
-            search_now = True
-            while search_now:
-                start = treenodes.index(current) + 1
-                if start < len(treenodes) - 1:
-                    for boxid in treenodes[start:]:
-                        node = self.tree.item(boxid)
-                        if node['text'].find(self.find_box_name) != -1:
-                            self.tree.focus(boxid)
-                            self.tree.selection_set(boxid)
-                            self.select_box(None)
-                            return
-
-                search_now = messagebox.askokcancel("Search Next","Can't find box named '" + self.find_box_name + "' specified\n Search from top?")
-                if search_now:
-                    current = self.treenodes[0]
+            self.find(self.find_box_name, self.treenodes, title="Find Next", msg="Can't find box named '" + self.find_box_name + "'\n Search from top?")
 
     def find_prev_box(self, event=None):
         if not self.find_box_name:
@@ -284,25 +268,7 @@ class MyApp(Tk):
 
         if self.find_box_name and self.treenodes:
             treenodes = self.treenodes[::-1]
-            current = self.tree.focus()
-            if not current:
-                current = treenodes[0]
-
-            search_now = True
-            while search_now:
-                start = treenodes.index(current) + 1
-                if start < len(treenodes) - 1:
-                    for boxid in treenodes[start:]:
-                        node = self.tree.item(boxid)
-                        if node['text'].find(self.find_box_name) != -1:
-                            self.tree.focus(boxid)
-                            self.tree.selection_set(boxid)
-                            self.select_box(None)
-                            return
-
-                search_now = messagebox.askokcancel("Search Prev","Can't find box named '" + self.find_box_name + "' specified\n Search from bottom?")
-                if search_now:
-                    current = treenodes[0]
+            self.find(self.find_box_name, treenodes, title="Find Next", msg="Can't find box named '" + self.find_box_name + "'\n Search from bottom?")
 
     def select_box(self, a):
         """ Callback on selecting an Mp4 box in treeview """
