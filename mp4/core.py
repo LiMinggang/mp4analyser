@@ -37,7 +37,8 @@ class Mp4Box:
     @property
     def type(self):
         return self.header.type
-
+    def trunc(self):
+        return self.header.trunc
     def get_top(self):
         if self.parent.type == 'file':
             return self
@@ -67,7 +68,7 @@ class Header:
         """
         The file pointer, fp will be located at the start of the box on entry and at the end of the header on exit
         """
-        self.trunc = False
+        self.trunc = 0
         start_of_box = fp.tell()
         fp.seek(0, os.SEEK_END)
         max_len_of_box = fp.tell() - start_of_box
@@ -77,10 +78,10 @@ class Header:
         if self._size == 1:
             self._largesize = read_u64(fp)
             if max_len_of_box < self._largesize:
-                self.trunc = True
+                self.trunc = self._largesize - max_len_of_box
         else:
             if max_len_of_box < self._size:
-                self.trunc = True
+                self.trunc = self._size - max_len_of_box
         if self.type == 'uuid':
             self.uuid = fp.read(16)
         self.header_size = fp.tell() - start_of_box
@@ -97,9 +98,11 @@ class Header:
 
     def get_header(self):
         """ returns all header properties as a dictionary """
-        ret_header = {"size": self._size, "type": self.type, 'IsTruncated':self.trunc}
+        ret_header = {"size": self._size, "type": self.type}
         if self._size == 1:
             ret_header['largesize'] = self._largesize
         if self.type == 'uuid':
             ret_header['uuid'] = self.uuid
+        if self.trunc > 0:
+            ret_header['TruncatedSize'] = self.trunc
         return ret_header

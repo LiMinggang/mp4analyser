@@ -18,6 +18,7 @@ from tkinter import filedialog
 from tkinter import simpledialog
 from tkinter import messagebox
 from tkinter import ttk
+from tkinter import font
 # mp4 is the package that actually parses the mp4 file
 import mp4.iso
 
@@ -143,11 +144,16 @@ class MyApp(Tk):
         self.scroll1.grid(column=1, row=0, sticky=(N, S))
         self.tree['yscrollcommand'] = self.scroll1.set
         self.tree.bind('<ButtonRelease-1>', self.select_box)
+        def_font = font.nametofont("TkDefaultFont")
+        err_font = def_font.copy()
+        err_font.configure(weight='bold', slant='italic')
+        
+        self.tree.tag_configure('error', font=err_font, foreground='red')
 
         # text widget display details of selected box
         self.t = ReadOnlyText(self.f2, state='normal', width=120, height=24, wrap='none')
         self.t.grid(column=0, row=0, sticky=(N, W, E, S))
-        self.t.tag_configure('error', font=('Arial', 12, 'bold', 'italic'), foreground='red')
+        self.t.tag_configure('error', font=err_font, foreground='red')
 
         # Sub-classed auto hiding scroll bar
         self.scroll2 = AutoScrollbar(self.f2, orient=VERTICAL, command=self.t.yview)
@@ -192,31 +198,36 @@ class MyApp(Tk):
         self.findmenu.entryconfigure(self.find_prev_menu, state=DISABLED)
         # Now fill tree with new contents
         for l0, this_box in enumerate(self.mp4file.child_boxes):
-            self.treenodes.append(self.tree.insert('', 'end', str(l0), text=str(l0) + " " + this_box.type, open=TRUE))
+            ttags = ('error', ) if this_box.trunc() > 0 else ()
+            self.treenodes.append(self.tree.insert('', 'end', str(l0), text=str(l0) + " " + this_box.type, open=TRUE, tags=ttags))
             for l1, this_box in enumerate(this_box.child_boxes):
                 l1_iid = "{0}.{1}".format(l0, l1)
-                self.treenodes.append(self.tree.insert(str(l0), 'end', l1_iid, text=l1_iid + " " + this_box.type, open=TRUE))
+                ttags = ('error', ) if this_box.trunc() > 0 else ()
+                self.treenodes.append(self.tree.insert(str(l0), 'end', l1_iid, text=l1_iid + " " + this_box.type, open=TRUE, tags=ttags))
                 for l2, this_box in enumerate(this_box.child_boxes):
                     l2_iid = "{0}.{1}.{2}".format(l0, l1, l2)
-                    self.treenodes.append(self.tree.insert(l1_iid, 'end', l2_iid, text=l2_iid + " " + this_box.type, open=TRUE))
+                    ttags = ('error', ) if this_box.trunc() > 0 else ()
+                    self.treenodes.append(self.tree.insert(l1_iid, 'end', l2_iid, text=l2_iid + " " + this_box.type, open=TRUE, tags=ttags))
                     for l3, this_box in enumerate(this_box.child_boxes):
                         l3_iid = "{0}.{1}.{2}.{3}".format(l0, l1, l2, l3)
-                        self.treenodes.append(self.tree.insert(l2_iid, 'end', l3_iid, text=l3_iid + " " + this_box.type, open=TRUE))
+                        ttags = ('error', ) if this_box.trunc() > 0 else ()
+                        self.treenodes.append(self.tree.insert(l2_iid, 'end', l3_iid, text=l3_iid + " " + this_box.type, open=TRUE, tags=ttags))
                         for l4, this_box in enumerate(this_box.child_boxes):
                             l4_iid = "{0}.{1}.{2}.{3}.{4}".format(l0, l1, l2, l3, l4)
-                            self.treenodes.append(self.tree.insert(l3_iid, 'end', l4_iid, text=l4_iid + " " + this_box.type, open=TRUE))
+                            ttags = ('error', ) if this_box.trunc() > 0 else ()
+                            self.treenodes.append(self.tree.insert(l3_iid, 'end', l4_iid, text=l4_iid + " " + this_box.type, open=TRUE, tags=ttags))
                             for l5, this_box in enumerate(this_box.child_boxes):
                                 l5_iid = "{0}.{1}.{2}.{3}.{4}.{5}".format(l0, l1, l2, l3, l4, l5)
-                                self.treenodes.append(self.tree.insert(l4_iid, 'end', l5_iid, text=l5_iid + " " + this_box.type, open=TRUE))
+                                ttags = ('error', ) if this_box.trunc() > 0 else ()
+                                self.treenodes.append(self.tree.insert(l4_iid, 'end', l5_iid, text=l5_iid + " " + this_box.type, open=TRUE, tags=ttags))
                                 for l6, this_box in enumerate(this_box.child_boxes):
                                     l6_iid = "{0}.{1}.{2}.{3}.{4}.{5}.{6}".format(l0, l1, l2, l3, l4, l5, l6)
-                                    self.treenodes.append(self.tree.insert(l5_iid, 'end', l6_iid, text=l6_iid + " " + this_box.type,
-                                                     open=TRUE))
+                                    ttags = ('error', ) if this_box.trunc() > 0 else ()
+                                    self.treenodes.append(self.tree.insert(l5_iid, 'end', l6_iid, text=l6_iid + " " + this_box.type, open=TRUE, tags=ttags))
                                     for l7, this_box in enumerate(this_box.child_boxes):
-                                        l7_iid = "{0}.{1}.{2}.{3}.{4}.{5}.{6}.{7}".format(l0, l1, l2, l3, l4, l5, l6,
-                                                                                          l7)
-                                        self.treenodes.append(self.tree.insert(l6_iid, 'end', l7_iid, text=l7_iid + " " + this_box.type,
-                                                         open=TRUE))
+                                        l7_iid = "{0}.{1}.{2}.{3}.{4}.{5}.{6}.{7}".format(l0, l1, l2, l3, l4, l5, l6, l7)
+                                        ttags = ('error', ) if this_box.trunc() > 0 else ()
+                                        self.treenodes.append(self.tree.insert(l6_iid, 'end', l7_iid, text=l7_iid + " " + this_box.type, open=TRUE, tags=ttags))
         logging.debug("Finished populating " + filename)
         self.statustext.set("")
         if self.treenodes:
@@ -315,7 +326,7 @@ class MyApp(Tk):
         my_string = "Box is located at position " + "{0:#d}".format(box_selected.start_of_box) + \
                     " from start of from file\n\n"
         hdr_str = json.dumps(box_selected.header.get_header())
-        if -1 == hdr_str.find('"IsTruncated": true'):
+        if -1 == hdr_str.find('"TruncatedSize": '):
             my_string += "Has header:\n" + hdr_str + "\n\n"
         else:
             self.t.insert(END, my_string + "Has header:\n")
