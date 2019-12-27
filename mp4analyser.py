@@ -363,7 +363,7 @@ class MyApp(Tk):
             offset += bytes_per_line
         logging.debug("Hex text processed")
         if trunc:
-            self.thex.insert(END, 'Hex view, showing first 1MB: \n' + hex_string)
+            self.thex.insert(END, 'Hex view, showing first 8KB: \n' + hex_string)
         else:
             self.thex.insert(END, 'Hex view: \n' + hex_string)
 
